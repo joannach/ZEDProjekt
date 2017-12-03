@@ -1,0 +1,9 @@
+base
+shiny
+knitr
+ggplot2
+dplyr
+bindrcpp
+lattice
+caret
+plotly
