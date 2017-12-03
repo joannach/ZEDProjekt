@@ -167,11 +167,11 @@ kor3;
 ## Wykres zmiany wytwarzanej energii w czasie i przestrzeni {#section7}
 
 ```{r wykres_glowny, echo=TRUE}
-p_glowny <- plot_ly(elektrownie_wykr, x = ~kwh, y = ~data, z = ~dist,
+p_glowny <- plot_ly(elektrownie_wykr, x = ~kwh, y = ~ora, z = ~dist,
          marker = list(color = ~elektrownie_wykr$azimuth, colorscale = c('#FFE1A1', '#683531'), showscale = TRUE)) %>%
    add_markers() %>%
    layout(scene = list(xaxis = list(title = 'Energia'),
-                      yaxis = list(title = 'Data'),
+                      yaxis = list(title = 'Godzina'),
                       zaxis = list(title = 'Odleglosc')),
           annotations = list(
             x = 1.13,
@@ -189,13 +189,13 @@ p_glowny;
 
 ```{r regresor, echo=TRUE}
 trainPart <- createDataPartition(
-  y = elektrownie$kwh,
+  y = elektrownie_wykr$idsito,
   p = .75,
   list = FALSE
 )
 
-training <- elektrownie[trainPart,];
-testing <- elektrownie[-trainPart,];
+training <- elektrownie_wykr[trainPart,];
+testing <- elektrownie_wykr[-trainPart,];
 
 ctrl <- trainControl(
     # powtórzona ocena krzy¿owa
@@ -206,53 +206,24 @@ ctrl <- trainControl(
     repeats = 5);
 
 set.seed(23)
-fit <- train(kwh ~ .,
-             data = training,
-             method = "rf",
-             trControl = ctrl,
-             # Paramter dla algorytmu ucz¹cego
-             ntree = 10);
+fit <- train(kwh ~ idsito,
+              data = training,
+              method = "gaussprLinear",
+              trControl = ctrl);
 
 fit;
 
-rfClasses <- predict(fit, newdata = testing);
-confusionMatrix(data = rfClasses, testing$kwh);
-
-rfGrid <- expand.grid(mtry = 10:30)
-gridCtrl <- trainControl(
-    method = "repeatedcv",
-    summaryFunction = twoClassSummary,
-    classProbs = TRUE,
-    number = 2,
-    repeats = 5)
-
 set.seed(23)
-fitTune <- train(kwh ~ .,
-             data = training,
-             method = "rf",
-             metric = "ROC",
-             preProc = c("center", "scale"),
-             trControl = gridCtrl,
-             tuneGrid = rfGrid,
-             ntree = 30)
+fitnn <- train(kwh ~ idsito,
+              data = training,
+              method = "neuralnet",
+              trControl = ctrl);
 
+fitnn;
 
-ggplot(fitTune) + theme_bw()
+ggplot(fitnn) + theme_bw();
 
-rfTuneClasses <- predict(fitTune,
-                         newdata = testing)
-confusionMatrix(data = rfTuneClasses, 
-                testing$kwh)
-
-rfTuneProbs <- predict(fitTune, 
-                       newdata = testing,
-                       type="prob")
-
-rocCurve <- roc(response = testing$kwh,
-                predictor = rfTuneProbs[, "M"],
-                levels = rev(levels(testing$kwh)))
-
-plot(rocCurve)
+gauss <- predict(fit, newdata = testing)
 
 ```
 
