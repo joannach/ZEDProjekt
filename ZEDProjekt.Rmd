@@ -6,6 +6,8 @@ output:
   html_document:
     toc: true
     toc_depth: 2
+    df_print: paged
+    cols.print: 6
 runtime: shiny
 ---
 
@@ -16,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Wykorzystane biblioteki: {#section1}
 
-```{r wykorzystaneBibioteki}
+```{r wykorzystaneBibioteki, message=FALSE}
 library(knitr)
 library(shiny)
 library(plotly)
@@ -28,7 +30,7 @@ library(pROC)
 
 ## Wczytanie danych {#section2}
 
-```{r wczytDanych, echo=TRUE, cache=TRUE}
+```{r wczytDanych, echo=TRUE, cache=TRUE, message=FALSE}
 
 elektrownie <- as.data.frame(read.csv("elektrownie.csv"));
 
@@ -44,7 +46,7 @@ elektrownie_wykr <- filter(elektrownie, pressurei != 0);
 
 ## Przetwarzanie brakuj¹cych danych {#section3}
 
-```{r przetwNa, echo = FALSE, cache=TRUE}
+```{r przetwNa, echo = FALSE, cache=FALSE, message=FALSE}
 sr_pressure <- mean(elektrownie$pressure);
 sr_windspeed <- mean(elektrownie$windspeed);
 sr_icon <- mean(elektrownie$icon);
@@ -111,16 +113,16 @@ elektrownie <- mutate(elektrownie, pcnm12 = ifelse(pcnm12 == 0, sr_pcnm12, pcnm1
 elektrownie <- mutate(elektrownie, pcnm13 = ifelse(pcnm13 == 0, sr_pcnm13, pcnm13));
 elektrownie <- mutate(elektrownie, pcnm14 = ifelse(pcnm14 == 0, sr_pcnm14, pcnm14));
 elektrownie <- mutate(elektrownie, pcnm15 = ifelse(pcnm15 == 0, sr_pcnm15, pcnm15));
-kable(head(elektrownie));
+renderTable(head(elektrownie));
 
 ```
 
 
 ## Rozmiar zbioru i podstawowe statystyki {#section4}
 
-```{r statystykiPodst, echo=FALSE}
+```{r statystykiPodst, echo=FALSE, message=FALSE}
 
-kable(summary(elektrownie));
+renderTable(summary(elektrownie));
 wierszy <- nrow(elektrownie);
 atrybuty <- names(elektrownie);
 
@@ -129,12 +131,12 @@ atrybuty <- names(elektrownie);
 
 ## Szczegó³owa analiza wartoœci atrybutów {#section5}
 
-```{r wartAttr, echo = FALSE, cache=TRUE}
+```{r wartAttr, echo = FALSE, cache=FALSE, message=FALSE}
 azimuth_plot <- plot_ly(elektrownie_wykr, x = ~data, y = ~azimuth, type = "scatter", name = 'Umiejscowienie geograficzne w czasie');
 pressure_plot <- plot_ly(elektrownie_wykr, x = ~data, y = ~pressure, type = "scatter", name = 'Cisnienie w czasie');
 wilgotnosc_plot <- plot_ly(elektrownie_wykr, x = ~data, y = ~humidity, type = "scatter", name = 'Wilgotnosc w czasie');
 temp_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~tempi, type = "scatter", name = 'Temperatura w czasie')
-dewpoint_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~dewpoint, type = "scatter", name = 'Temperatura punktu rosy w czasie')
+dewpoint_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~dewpoint, type = "scatter", name = 'Temperatura punktu rosy w czasie') 
 dist_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~dist, type = "scatter", name = 'Odleglosc w czasie')
 
 azimuth_plot;
@@ -148,17 +150,29 @@ dist_plot;
 
 ## Korelacje miêdzy zmiennymi {#section6}
 
-```{r korelacje, echo=TRUE}
+```{r korelacje, echo=TRUE, message=FALSE}
 kor1 <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$azimuth, name = 'azimuth', type = 'scatter', mode = 'markers') %>%
-  add_trace(y = ~elektrownie_wykr$azimuthi, name = 'azimuthi', mode = 'markers');
+  add_trace(y = ~elektrownie_wykr$kwh, name = 'energia', mode = 'markers') %>%
+  layout(title = 'Azymut - energia ',
+         xaxis = list(title = 'Energia',
+                      zeroline = TRUE),
+         yaxis = list(title = 'Azymut'));
 kor1;
 
 kor2 <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$temp, name = 'temp', type = 'scatter', mode = 'markers') %>%
-  add_trace(y = ~elektrownie_wykr$dewpoint, name = 'dewpoint', mode = 'markers');
+  add_trace(y = ~elektrownie_wykr$kwh, name = 'energia', mode = 'markers')%>%
+  layout(title = 'Temperatura - energia ',
+         xaxis = list(title = 'Energia',
+                      zeroline = TRUE),
+         yaxis = list(title = 'Temperatura'));
 kor2;
 
 kor3 <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$pressure, name = 'pressure', type = 'scatter', mode = 'markers') %>%
-  add_trace(y = ~elektrownie_wykr$pressurei, name = 'pressurei', mode = 'markers');
+  add_trace(y = ~elektrownie_wykr$kwh, name = 'energia', mode = 'markers')%>%
+  layout(title = 'Cisnienie - energia',
+         xaxis = list(title = 'Energia',
+                      zeroline = TRUE),
+         yaxis = list(title = 'Ciesnienie'));
 kor3;
 
 ```
@@ -166,7 +180,7 @@ kor3;
 
 ## Wykres zmiany wytwarzanej energii w czasie i przestrzeni {#section7}
 
-```{r wykres_glowny, echo=TRUE}
+```{r wykres_glowny, echo=TRUE, message=FALSE}
 p_glowny <- plot_ly(elektrownie_wykr, x = ~kwh, y = ~ora, z = ~dist,
          marker = list(color = ~elektrownie_wykr$azimuth, colorscale = c('#FFE1A1', '#683531'), showscale = TRUE)) %>%
    add_markers() %>%
@@ -187,7 +201,7 @@ p_glowny;
 
 ## Regresor przewiduj¹cy wytwarzan¹ energiê przez ka¿dy panel w ujêciu godzinowym {#section8}
 
-```{r regresor, echo=TRUE}
+```{r regresor, echo=TRUE, message=FALSE}
 trainPart <- createDataPartition(
   y = elektrownie_wykr$idsito,
   p = .75,
@@ -221,9 +235,10 @@ fitnn <- train(kwh ~ idsito,
 
 fitnn;
 
-ggplot(fitnn) + theme_bw();
+plotnn <- ggplot(fitnn) + theme_bw();
+renderPlot(plotnn)
 
-gauss <- predict(fit, newdata = testing)
+#gauss <- predict(fit, newdata = testing)
 
 ```
 
