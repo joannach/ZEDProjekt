@@ -35,7 +35,7 @@ library(pROC)
 elektrownie <- as.data.frame(read.csv("elektrownie.csv"));
 
 ```
-```{r wczytDanychDoWykr, scho=FALSE, cache=TRUE}
+```{r wczytDanychDoWykr, echo=FALSE, cache=TRUE}
 
 elektrownie_wykr <- filter(elektrownie, pressure != 0);
 elektrownie_wykr <- filter(elektrownie, irr_pvgis_mod != 0);  
@@ -48,71 +48,19 @@ elektrownie_wykr <- filter(elektrownie, pressurei != 0);
 
 ```{r przetwNa, echo = FALSE, cache=FALSE, message=FALSE}
 sr_pressure <- mean(elektrownie$pressure);
-sr_windspeed <- mean(elektrownie$windspeed);
-sr_icon <- mean(elektrownie$icon);
-sr_dewpoint <- mean(elektrownie$dewpoint);
-sr_windbearing <- mean(elektrownie$windbearing);
-sr_tempi <- mean(elektrownie$tempi);
-sr_irri <- mean(elektrownie$irri);
 sr_pressurei <- mean(elektrownie$pressurei);
-sr_windspeedi <- mean(elektrownie$windspeedi);
-sr_humidityi <- mean(elektrownie$humidityi);
-sr_dewpointi <- mean(elektrownie$dewpointi);
-sr_windbearingi <- mean(elektrownie$windbearingi);
-sr_cloudcover <- mean(elektrownie$cloudcover);
 sr_dist <- mean(elektrownie$dist);
 sr_altitude <- mean(elektrownie$altitude);
 sr_azimuth <- mean(elektrownie$azimuth);
 sr_altitudei <- mean(elektrownie$altitudei);
 sr_azimuthi <- mean(elektrownie$azimuthi);
-sr_pcnm1 <- mean(elektrownie$pcnm1);
-sr_pcnm2 <- mean(elektrownie$pcnm2);
-sr_pcnm3 <- mean(elektrownie$pcnm3);
-sr_pcnm4 <- mean(elektrownie$pcnm4);
-sr_pcnm5 <- mean(elektrownie$pcnm5);
-sr_pcnm6 <- mean(elektrownie$pcnm6);
-sr_pcnm7 <- mean(elektrownie$pcnm7);
-sr_pcnm8 <- mean(elektrownie$pcnm8);
-sr_pcnm9 <- mean(elektrownie$pcnm9);
-sr_pcnm10 <- mean(elektrownie$pcnm10);
-sr_pcnm11 <- mean(elektrownie$pcnm11);
-sr_pcnm12 <- mean(elektrownie$pcnm12);
-sr_pcnm13 <- mean(elektrownie$pcnm13);
-sr_pcnm14 <- mean(elektrownie$pcnm14);
-sr_pcnm15 <- mean(elektrownie$pcnm15);
-elektrownie <- mutate(elektrownie, pressure = ifelse(pressure == 0, sr_pressure, pressure))
-elektrownie <- mutate(elektrownie, windspeed = ifelse(windspeed == 0, sr_windspeed, windspeed))
-elektrownie <- mutate(elektrownie, icon = ifelse(icon == 0, sr_icon, icon));
-elektrownie <- mutate(elektrownie, dewpoint = ifelse(dewpoint == 0, sr_dewpoint, dewpoint));
-elektrownie <- mutate(elektrownie, windbearing = ifelse(windbearing == 0, sr_windbearing, windbearing));
-elektrownie <- mutate(elektrownie, tempi = ifelse(tempi == 0, sr_tempi, tempi));
-elektrownie <- mutate(elektrownie, irri = ifelse(irri == 0, sr_irri, irri));
+elektrownie <- mutate(elektrownie, pressure = ifelse(pressure == 0, sr_pressure, pressure));
 elektrownie <- mutate(elektrownie, pressurei = ifelse(pressurei == 0, sr_pressurei, pressurei));
-elektrownie <- mutate(elektrownie, windspeedi = ifelse(windspeedi == 0, sr_windspeedi, windspeedi));
-elektrownie <- mutate(elektrownie, humidityi = ifelse(humidityi == 0, sr_humidityi, humidityi));
-elektrownie <- mutate(elektrownie, dewpointi = ifelse(dewpointi == 0, sr_dewpointi, dewpointi));
-elektrownie <- mutate(elektrownie, windbearingi = ifelse(windbearingi == 0, sr_windbearingi, windbearingi));
-elektrownie <- mutate(elektrownie, cloudcoveri = ifelse(cloudcoveri == 0, sr_cloudcover, cloudcoveri));
 elektrownie <- mutate(elektrownie, dist = ifelse(dist == 0, sr_dist, dist));
 elektrownie <- mutate(elektrownie, altitude = ifelse(altitude == 0, sr_altitude, altitude));
 elektrownie <- mutate(elektrownie, azimuth = ifelse(azimuth == 0, sr_azimuth, azimuth));
 elektrownie <- mutate(elektrownie, altitudei = ifelse(altitudei == 0, sr_altitudei, altitudei));
 elektrownie <- mutate(elektrownie, azimuthi = ifelse(azimuthi == 0, sr_azimuthi, azimuthi));
-elektrownie <- mutate(elektrownie, pcnm1 = ifelse(pcnm1 == 0, sr_pcnm1, pcnm1));
-elektrownie <- mutate(elektrownie, pcnm2 = ifelse(pcnm2 == 0, sr_pcnm2, pcnm2));
-elektrownie <- mutate(elektrownie, pcnm3 = ifelse(pcnm3 == 0, sr_pcnm3, pcnm3));
-elektrownie <- mutate(elektrownie, pcnm4 = ifelse(pcnm4 == 0, sr_pcnm4, pcnm4));
-elektrownie <- mutate(elektrownie, pcnm5 = ifelse(pcnm5 == 0, sr_pcnm5, pcnm5));
-elektrownie <- mutate(elektrownie, pcnm6 = ifelse(pcnm6 == 0, sr_pcnm6, pcnm6));
-elektrownie <- mutate(elektrownie, pcnm7 = ifelse(pcnm7 == 0, sr_pcnm7, pcnm7));
-elektrownie <- mutate(elektrownie, pcnm8 = ifelse(pcnm8 == 0, sr_pcnm8, pcnm8));
-elektrownie <- mutate(elektrownie, pcnm9 = ifelse(pcnm9 == 0, sr_pcnm9, pcnm9));
-elektrownie <- mutate(elektrownie, pcnm10 = ifelse(pcnm10 == 0, sr_pcnm10, pcnm10));
-elektrownie <- mutate(elektrownie, pcnm11 = ifelse(pcnm11 == 0, sr_pcnm11, pcnm11));
-elektrownie <- mutate(elektrownie, pcnm12 = ifelse(pcnm12 == 0, sr_pcnm12, pcnm12));
-elektrownie <- mutate(elektrownie, pcnm13 = ifelse(pcnm13 == 0, sr_pcnm13, pcnm13));
-elektrownie <- mutate(elektrownie, pcnm14 = ifelse(pcnm14 == 0, sr_pcnm14, pcnm14));
-elektrownie <- mutate(elektrownie, pcnm15 = ifelse(pcnm15 == 0, sr_pcnm15, pcnm15));
 renderTable(head(elektrownie));
 
 ```
@@ -159,7 +107,7 @@ kor1 <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$azimuth, name =
          yaxis = list(title = 'Azymut'));
 kor1;
 
-kor2 <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$temp, name = 'temp', type = 'scatter', mode = 'markers') %>%
+kor2 <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$tempi, name = 'temp', type = 'scatter', mode = 'markers') %>%
   add_trace(y = ~elektrownie_wykr$kwh, name = 'energia', mode = 'markers')%>%
   layout(title = 'Temperatura - energia ',
          xaxis = list(title = 'Energia',
@@ -235,10 +183,29 @@ fitnn <- train(kwh ~ idsito,
 
 fitnn;
 
-plotnn <- ggplot(fitnn) + theme_bw();
-renderPlot(plotnn)
+plotnn <- ggplot(fitnn) + theme_bw() ;
+renderPlot(plotnn);
 
-#gauss <- predict(fit, newdata = testing)
+renderText("Trenowanie z parametrami - idsito i temperatura")
+set.seed(23)
+fitTemp <- train(kwh ~ idsito + tempi,
+              data = training,
+              method = "gaussprLinear",
+              trControl = ctrl)
+
+renderText("Trenowanie z parametrami - idsito, temperatura i wilgotnoœæ")
+set.seed(23)
+fitTempHum <- train(kwh ~ idsito + azimuth + cloudcover,
+              data = training,
+              method = "gaussprLinear",
+              trControl = ctrl);
+fitTempHum;
+
+gClasses <- predict(fitTempHum, newdata = training);
+postResample(gClasses, testing$kwh);
+
+gClassesTest <- predict(fitTempHum, newdata = testing);
+postResample(gClassesTest, testing$kwh)
 
 ```
 
@@ -246,8 +213,16 @@ renderPlot(plotnn)
 ## Analiza wa¿noœci atrybutów najlepszego znalezionego modelu regresji: {#section9}
 
 
-```{r analyze}
+```{r analyze, message=FALSE, echo=FALSE}
+attributes_model <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$kwh, name = 'energia', type = 'scatter', mode = 'markers') %>%
+  add_trace(y = ~elektrownie_wykr$azimuth, name = 'Azymut', mode = 'markers') %>%
+  add_trace(y = ~elektrownie_wykr$cloudcover, name = 'Zachmurzenie', mode = 'markers') %>%
+  layout(title = 'Analiza atrybutów wybranego modelu',
+         xaxis = list(title = 'Data',
+                      zeroline = TRUE),
+         yaxis = list(title = 'Energia'));
 
+attributes_model
 ```
 
 
