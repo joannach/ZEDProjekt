@@ -1,7 +1,6 @@
 ---
 title: "Projekt z analizy danych"
 author: "Joanna Chromiñska"
-date: "22 listopada 2017"
 output: 
   html_document:
     toc: true
@@ -30,6 +29,7 @@ library(pROC)
 
 ## Wczytanie danych {#section2}
 
+Liczba wierszy i kolumn wczytanego zbioru danych: 
 ```{r wczytDanych, echo=TRUE, cache=TRUE, message=FALSE}
 
 elektrownie <- as.data.frame(read.csv("elektrownie.csv"));
@@ -40,12 +40,15 @@ elektrownie <- as.data.frame(read.csv("elektrownie.csv"));
 elektrownie_wykr <- filter(elektrownie, pressure != 0);
 elektrownie_wykr <- filter(elektrownie, irr_pvgis_mod != 0);  
 elektrownie_wykr <- filter(elektrownie, pressurei != 0);
+dim(elektrownie)
 
 ```
 
 
 ## Przetwarzanie brakuj¹cych danych {#section3}
 
+Zast¹pienie zerowych wartoœci œredni¹ danego atrybutu. 
+T¹ metodê zastosowa³am m. in. w praypadku atrybutu: ciœnienie, odleg³oœæ, azymut, wysokoœæ. 
 ```{r przetwNa, echo = FALSE, cache=FALSE, message=FALSE}
 sr_pressure <- mean(elektrownie$pressure);
 sr_pressurei <- mean(elektrownie$pressurei);
@@ -68,7 +71,45 @@ renderTable(head(elektrownie));
 
 ## Rozmiar zbioru i podstawowe statystyki {#section4}
 
+Zmiana nazw kolumn oraz wyœwietlenie liczby wierszy i nazwy atrybutów. 
 ```{r statystykiPodst, echo=FALSE, message=FALSE}
+# nazwy kolumn 
+elektrownie <- mutate(elektrownie, IdPomiaru = id);
+elektrownie <- mutate(elektrownie, IdCzujnika = idsito);
+elektrownie <- mutate(elektrownie, IdModelu = idmodel);
+elektrownie <- mutate(elektrownie, IdBrand = idbrand);
+elektrownie <- mutate(elektrownie, IdPomiaru = lat);
+elektrownie <- mutate(elektrownie, IdPomiaru = lon);
+elektrownie <- mutate(elektrownie, IdPomiaru = ageinmonths);
+elektrownie <- mutate(elektrownie, Rok = anno);
+elektrownie <- mutate(elektrownie, Dzien = day);
+elektrownie <- mutate(elektrownie, Godzina = ora);
+elektrownie <- mutate(elektrownie, Data = data);
+elektrownie <- mutate(elektrownie, TempSrodowiska = temperatura_ambiente);
+elektrownie <- mutate(elektrownie, Napromienienie = irradiamento);
+elektrownie <- mutate(elektrownie, Cisnienie = pressure);
+elektrownie <- mutate(elektrownie, PredkWiatru = windspeed);
+elektrownie <- mutate(elektrownie, Wilgotnosc = humidity);
+elektrownie <- mutate(elektrownie, IdPomiaru = icon);
+elektrownie <- mutate(elektrownie, PunktRosyi = dewpoint);
+elektrownie <- mutate(elektrownie, KierunekWiatru = windbearing);
+elektrownie <- mutate(elektrownie, Zachmurzenie = cloudcover);
+elektrownie <- mutate(elektrownie, Temperatura = tempi);
+elektrownie <- mutate(elektrownie, IdPomiaru = irri);
+elektrownie <- mutate(elektrownie, Cisnieniei = pressurei);
+elektrownie <- mutate(elektrownie, PredkWiatrui = windspeedi);
+elektrownie <- mutate(elektrownie, Wilgotnosci = humidityi);
+elektrownie <- mutate(elektrownie, PunktRosyi = dewpointi);
+elektrownie <- mutate(elektrownie, KierunekWiatrui = windbearingi);
+elektrownie <- mutate(elektrownie, Zachmurzeniei = cloudcoveri);
+elektrownie <- mutate(elektrownie, Odleglosc = dist);
+elektrownie <- mutate(elektrownie, Wysokosc = altitude);
+elektrownie <- mutate(elektrownie, Azymut = azimuth);
+elektrownie <- mutate(elektrownie, Wysokosci = altitudei);
+elektrownie <- mutate(elektrownie, Azymuti = azimuthi);
+elektrownie <- mutate(elektrownie, ModyfikatorPVGIS = irr_pvgis_mod);
+elektrownie <- mutate(elektrownie, ModyfikatorPVGISi = irri_pvgis_mod);
+elektrownie <- mutate(elektrownie, Energia = kwh);
 
 renderTable(summary(elektrownie));
 wierszy <- nrow(elektrownie);
@@ -80,11 +121,30 @@ atrybuty <- names(elektrownie);
 ## Szczegó³owa analiza wartoœci atrybutów {#section5}
 
 ```{r wartAttr, echo = FALSE, cache=FALSE, message=FALSE}
+
+# normalizacja 
+elektrownie_wykr$azimuth <- (elektrownie_wykr$azimuth-min(elektrownie_wykr$azimuth))/(max(elektrownie_wykr$azimuth)-min(elektrownie_wykr$azimuth))
+
+elektrownie_wykr$pressure <- (elektrownie_wykr$pressure-min(elektrownie_wykr$pressure))/(max(elektrownie_wykr$pressure)-min(elektrownie_wykr$pressure))
+
+elektrownie_wykr$humidity <- (elektrownie_wykr$humidity-min(elektrownie_wykr$humidity))/(max(elektrownie_wykr$humidity)-min(elektrownie_wykr$humidity))
+
+elektrownie_wykr$tempi <- (elektrownie_wykr$tempi-min(elektrownie_wykr$tempi))/(max(elektrownie_wykr$tempi)-min(elektrownie_wykr$tempi))
+
+elektrownie_wykr$dewpoint <- (elektrownie_wykr$dewpoint-min(elektrownie_wykr$dewpoint))/(max(elektrownie_wykr$dewpoint)-min(elektrownie_wykr$dewpoint))
+
+elektrownie_wykr$dist <- (elektrownie_wykr$dist-min(elektrownie_wykr$dist))/(max(elektrownie_wykr$dist)-min(elektrownie_wykr$dist))
+
 azimuth_plot <- plot_ly(elektrownie_wykr, x = ~data, y = ~azimuth, type = "scatter", name = 'Umiejscowienie geograficzne w czasie');
+
 pressure_plot <- plot_ly(elektrownie_wykr, x = ~data, y = ~pressure, type = "scatter", name = 'Cisnienie w czasie');
+
 wilgotnosc_plot <- plot_ly(elektrownie_wykr, x = ~data, y = ~humidity, type = "scatter", name = 'Wilgotnosc w czasie');
+
 temp_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~tempi, type = "scatter", name = 'Temperatura w czasie')
+
 dewpoint_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~dewpoint, type = "scatter", name = 'Temperatura punktu rosy w czasie') 
+
 dist_plot <-plot_ly(elektrownie_wykr, x = ~data, y = ~dist, type = "scatter", name = 'Odleglosc w czasie')
 
 azimuth_plot;
@@ -149,23 +209,33 @@ p_glowny;
 
 ## Regresor przewiduj¹cy wytwarzan¹ energiê przez ka¿dy panel w ujêciu godzinowym {#section8}
 
-```{r regresor, echo=TRUE, message=FALSE}
+W celu przeprowadzenia procesu uczenia podzieli³am zbiór danych na zbiór treningowy i testowy w proporcjach 75/25. 
+Pierwszym eksperymentem jest uczenie na zbiorze treningowym z wykorzystaniem algorytmu procesu Gaussa oraz osobno z wykorzystaniem sieci neuronowej. 
+Miara RMSE jest mniejsza w przypadku z wykorzystaniem sieci neuronowej. 
+
+Kolejne procesy to uczenie na podstawie wiêkszej iloœci atrybutów z wykorzystaniem algorytmu procesu Gaussa. 
+W pierwszym z tych przypadków uczenie odbywa siê na podstawie temperatury, a w kolejnym - temperatury, po³o¿enia i zachmurzenia. Im wiêcej atrybutów jest branych pod uwagê, tym proces uczenia osi¹ga lepsze wyniki, jednak znacznie spada tempo uczenia (lub proces siê nie koñczy).
+```{r regresor, echo=TRUE, message=FALSE, warning=FALSE}
+
+train_test <- createTimeSlices(y = elektrownie_wykr$idsito, initialWindow = .75)
+
+myTimeControl <- trainControl(  method = "timeslice",  initialWindow = .75, fixedWindow = FALSE,  allowParallel = TRUE,  classProbs = TRUE, verboseIter = TRUE) 
+
+
 trainPart <- createDataPartition(
   y = elektrownie_wykr$idsito,
   p = .75,
   list = FALSE
 )
 
-training <- elektrownie_wykr[trainPart,];
-testing <- elektrownie_wykr[-trainPart,];
+training <- head(elektrownie_wykr,1896);
+testing <- tail(elektrownie_wykr, 631);
 
 ctrl <- trainControl(
-    # powtórzona ocena krzy¿owa
-    method = "repeatedcv",
+    method = "timeslice",
+    initialWindow = 20,
     # liczba podzia³ów
-    number = 2,
-    # liczba powtórzeñ
-    repeats = 5);
+    number = 2);
 
 set.seed(23)
 fit <- train(kwh ~ idsito,
@@ -191,9 +261,10 @@ set.seed(23)
 fitTemp <- train(kwh ~ idsito + tempi,
               data = training,
               method = "gaussprLinear",
-              trControl = ctrl)
+              trControl = ctrl);
+fitTemp;
 
-renderText("Trenowanie z parametrami - idsito, temperatura i wilgotnoœæ")
+renderText("Trenowanie z parametrami - idsito, azymut i zachmurzenie")
 set.seed(23)
 fitTempHum <- train(kwh ~ idsito + azimuth + cloudcover,
               data = training,
@@ -201,10 +272,21 @@ fitTempHum <- train(kwh ~ idsito + azimuth + cloudcover,
               trControl = ctrl);
 fitTempHum;
 
-gClasses <- predict(fitTempHum, newdata = training);
+renderText("Trenowanie z parametrami - idsito, irri_pvgis i irri")
+set.seed(23)
+fitIrri <- train(kwh ~ idsito + irri_pvgis_mod + irri,
+              data = training,
+              method = "gaussprLinear",
+              trControl = ctrl);
+fitIrri;
+
+gClasses <- predict(fitTemp, newdata = testing);
 postResample(gClasses, testing$kwh);
 
 gClassesTest <- predict(fitTempHum, newdata = testing);
+postResample(gClassesTest, testing$kwh)
+
+gClassesTest <- predict(fitIrri, newdata = testing);
 postResample(gClassesTest, testing$kwh)
 
 ```
@@ -214,9 +296,9 @@ postResample(gClassesTest, testing$kwh)
 
 
 ```{r analyze, message=FALSE, echo=FALSE}
-attributes_model <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$kwh, name = 'energia', type = 'scatter', mode = 'markers') %>%
-  add_trace(y = ~elektrownie_wykr$azimuth, name = 'Azymut', mode = 'markers') %>%
-  add_trace(y = ~elektrownie_wykr$cloudcover, name = 'Zachmurzenie', mode = 'markers') %>%
+attributes_model <- plot_ly(elektrownie_wykr, x = ~data, y= elektrownie_wykr$kwh, name = 'Energia', type = 'scatter', mode = 'markers') %>%
+  add_trace(y = ~elektrownie_wykr$irri_pvgis_mod, name = 'PVGIS', mode = 'markers') %>%
+  add_trace(y = ~elektrownie_wykr$irri, name = 'Irr', mode = 'markers') %>%
   layout(title = 'Analiza atrybutów wybranego modelu',
          xaxis = list(title = 'Data',
                       zeroline = TRUE),
